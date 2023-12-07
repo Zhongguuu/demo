@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>codemirror展示</title>
+    <link href="codemirror-5.65.16/lib/codemirror.css" rel="stylesheet"/>
+    <link href="codemirror-5.65.16/theme/monokai.css" rel="stylesheet"/>
+    <link href="codemirror-5.65.16/theme/idea.css" rel="stylesheet"/>
+    <link href="codemirror-5.65.16/theme/eclipse.css" rel="stylesheet"/>
+    <link href="codemirror-5.65.16/theme/darcula.css" rel="stylesheet"/>
+    <link href="codemirror-5.65.16/theme/tomorrow-night-bright.css" rel="stylesheet"/>
+    <link href="codemirror-5.65.16/addon/display/fullscreen.css" rel="stylesheet"/>
+    <!-- 引入CodeMirror核心文件 -->
+    <script type=text/javascript src=codemirror-5.65.16/lib/codemirror.js></script>
+    <script src="codemirror-5.65.16/mode/python/python.js"></script>
+
+    <!--自动补全-->
+    <link rel="stylesheet" href="codemirror-5.65.16/addon/hint/show-hint.css">
+    <script src="codemirror-5.65.16/addon/hint/show-hint.js"></script>
+    <script src="codemirror-5.65.16/addon/hint/anyword-hint.js"></script>
+    <script src="codemirror-5.65.16/addon/search/match-highlighter.js"></script>
+</head>
+
+<body>
+<label for="editor"></label><textarea id="editor" name="editor"></textarea>
+
+<!-- 下面分别为显示行数、括号匹配和全屏插件 -->
+<script type=text/javascript src=codemirror-5.65.16/addon/selection/active-line.js></script>
+<script type=text/javascript src=codemirror-5.65.16/addon/edit/matchbrackets.js></script>
+<script type=text/javascript src=codemirror-5.65.16/addon/display/fullscreen.js></script>
+
+<script>
+
+    let myTextarea = document.getElementById("editor");
+
+    const CodeMirrorEditor = CodeMirror.fromTextArea(myTextarea, {
+        mode: "text/x-python",
+        lineNumbers: true,
+        theme: "idea",
+        indentUnit: 4,         // 缩进单位为4
+        styleActiveLine: true, // 当前行背景高亮
+        extraKeys: {"Ctrl-B": "autocomplete"},
+        fullScreen: true,
+        lineWrapping: true,
+        matchBrackets: true,
+        hintOptions: {  // 自定义提示选项
+            completeSingle: false, // 当匹配只有一项的时候是否自动补全
+        },
+        highlightSelectionMatches: {
+            minChars: 2,
+            trim: true,
+            style: "matchhighlight",
+            showToken: false
+        },
+        onChange: function (instance, changeObj) {
+            let content;
+            content = instance.getValue();
+            //encode content
+            content = encodeURIComponent(content).replace(/%20/g, "+");
+            window.javaConnector.sendToJava(content);
+        }
+    });
+
+    function updateTextArea(content) {
+        //decode content
+        content = decodeURIComponent(content).replace(/\+/g, " ");
+        CodeMirrorEditor.setValue(content);
+    }
+
+    function setTheme(theme) {
+        CodeMirrorEditor.setOption("theme", theme);
+    }
+
+    function setFontSize(size) {
+        CodeMirrorEditor.getWrapperElement().style["font-size"] = size;
+    }
+
+    function new_test() {
+        window.javaConnector.sendToJava("test");
+    }
+
+</script>
+</body>
+
+</html>
